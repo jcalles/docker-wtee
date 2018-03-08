@@ -49,5 +49,9 @@ services:
     volumes_from:
       - aplications
 ```
-
+### UPDATE
+if you need to get logs from running container, and container has volumes exposed, run this:
+```bash
+docker run --rm -it --name testlogs --link <CONTAINERNAME/ID> --network CONTAINERNETWORK -p PORT:8080 --volumes-from CONTAINERNAME/ID  javiercalles/wtee sh
+```
 ### Enjoy it!!!
