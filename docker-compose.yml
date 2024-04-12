@@ -1,24 +1,26 @@
-version: '2'
+version: '3'
+
 services:
- aplications:
+  applications:
     image: tianon/true
     volumes:
       - "./data/logs:/var/log/nginx"
- logs:
-    image: javiercalles/wtee
+
+  logs:
+    image: wtee
     tty: true
     ports:
       - "8080:8080"
-    volumes_from:
-      - aplications
+    volumes:
+      - "./data/logs:/var/log"
     environment:
-      - LOGPATH=/var/log
+      - LOGPATH=/var/log/nginx
 
- apache:
+  nginx:
     image: nginx
     tty: true
     ports:
       - "8081:80"
     volumes_from:
-      - aplications
+      - applications
 

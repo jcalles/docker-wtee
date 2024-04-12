@@ -8,46 +8,55 @@ Inside port: 8080
    
 For testing :
 create dir test and file test.log like this:
-```bash
+```shell
 mkdir test && touch test/test.log
 ```
   
-* 2) docker run --rm -it --name=testlogs -v "\<LOCALPATH>/test:/var/log" -p 8080:8080 -e "LOGPATH=/var/log" javiercalles/wtee
+* 2) 
+```
+docker run --rm -it --name=testlogs -v "$(pwd)/test:/test" -p 8080:8080 -e "LOGPATH=/test" javiercalles/wtee
+```
 
 * 3) run this command:
-```bash
+
+	```bash
+###	
 while true; do sleep 2;echo "test logs in $(hostname) at $(date +%Y%d%m-%H:%M:%S)" >> test/test.log;done
+## or
+bash test-script.sh
 ```
-* 4) put in your brower"
-    * http://localhost:8080/     
+* 4) put in your brower
+	* http://localhost:8080/     
 
 
 ### docker-compose
 
 ```yml
-version: '2'
+version: '3'
+
 services:
- aplications:
+  applications:
     image: tianon/true
     volumes:
       - "./data/logs:/var/log/nginx"
- logs:
+
+  logs:
     image: javiercalles/wtee
     tty: true
     ports:
       - "8080:8080"
-    volumes_from:
-      - aplications
+    volumes:
+      - "./data/logs:/var/log"
     environment:
-      - LOGPATH=/var/log
+      - LOGPATH=/var/log/nginx
 
- apache:
+  apache:
     image: nginx
     tty: true
     ports:
       - "8081:80"
     volumes_from:
-      - aplications
+      - applications
 ```
 ### UPDATE
 if you need to get logs from running container, and container has volumes exposed, run this:

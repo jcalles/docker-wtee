@@ -1,17 +1,30 @@
-FROM alpine
-MAINTAINER  Javier Calles "jcalles@teravisiontech.com"
-RUN apk update \
-&& apk add --no-cache python wget coreutils\
-#&& apk add --no-cache wget \
-&& wget https://bootstrap.pypa.io/get-pip.py --no-check-certificate \
-#&& apk add --no-cache coreutils \
-&& python get-pip.py \
-&& pip install wtee
+FROM python:3.8.19-alpine3.19
 
+MAINTAINER Javier Calles "javiercalles@gmail.com"
+ENV TRUSTED_HOST="--trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org"
+
+# Install required packages
+RUN apk update && \
+    apk add --no-cache \
+        wget \
+        coreutils \
+        binutils \
+        bash && \
+    pip install $TRUSTED_HOST wtee
+
+# Set the working directory
+WORKDIR /app
+
+# Copy the entrypoint script
+COPY docker-entrypoint.sh /docker-entrypoint.sh
+
+# Make the entrypoint script executable
+RUN chmod +x /docker-entrypoint.sh
+
+# Define environment variables
 ARG LOGPATH
 ENV LOGPATH=$LOGPATH
 
-RUN echo $'#!/bin/sh\n\
-tail -f $(find $LOGPATH -type f -iname "*.log")|wtee -d -b 0.0.0.0:8080 |nl > /dev/null 2>&1\n '\
->> /docker-entrypoint.sh && chmod +x /docker-entrypoint.sh
+# Define the entrypoint
 ENTRYPOINT ["/docker-entrypoint.sh"]
+
